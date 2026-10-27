@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import { config } from '../config'
 import { query } from '../db/pool'
 import { asyncHandler } from '../middleware/async-handler'
+import { requireAuth } from '../middleware/auth'
 
 export const authRouter = Router()
 
@@ -40,5 +41,22 @@ authRouter.post(
       expiresIn: '7d',
     })
     res.json({ token })
+  }),
+)
+
+// GET /api/auth/profile — returns email and name of the user from the Bearer token.
+authRouter.get(
+  '/profile',
+  requireAuth,
+  asyncHandler(async (_req, res) => {
+    const { rows } = await query<{ email: string; name: string }>(
+      'SELECT email, name FROM users WHERE id = $1',
+      [res.locals.userId],
+    )
+    if (!rows[0]) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+    res.json(rows[0])
   }),
 )
