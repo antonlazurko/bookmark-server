@@ -15,17 +15,21 @@ Node + Express + PostgreSQL (Neon) backend for the Bookmarkly frontend.
 
 All responses are JSON. Base path: `/api`.
 
-| Method | Path                           | Body                     | Notes                              |
-| ------ | ------------------------------ | ------------------------ | ---------------------------------- |
-| POST   | `/api/auth/login`              | `{ email, password }`    | Returns `{ token }` (JWT)          |
-| GET    | `/api/profile`                 | —                        | Returns `{ name }`                 |
-| GET    | `/api/categories`              | —                        | Array of categories                |
-| POST   | `/api/categories`              | `{ name, alias }`        | Creates a category                 |
-| PUT    | `/api/categories/:id`          | `{ name, alias }`        | Updates a category                 |
-| DELETE | `/api/categories/:id`          | —                        | Deletes a category (+ bookmarks)   |
-| GET    | `/api/categories/:id/bookmarks`| —                        | Bookmarks of one category          |
-| POST   | `/api/bookmarks`               | `{ category_id, url }`   | Title/image scraped from the URL   |
-| DELETE | `/api/bookmarks/:id`           | —                        | Deletes a bookmark                 |
+Interactive docs (Swagger UI): `/api/docs`, raw OpenAPI spec: `/api/docs.json`
+(source: `src/docs/openapi.ts` — update it when routes change).
+
+| Method | Path                            | Body                                   | Notes                                    |
+| ------ | ------------------------------- | -------------------------------------- | ---------------------------------------- |
+| POST   | `/api/auth/login`               | `{ email, password }`                  | Returns `{ token }` (JWT)                |
+| GET    | `/api/auth/profile`             | —                                      | Bearer token; `{ email, name }`          |
+| GET    | `/api/profile`                  | —                                      | Bearer token; `{ name }`                 |
+| GET    | `/api/categories`               | —                                      | Array of categories                      |
+| POST   | `/api/categories`               | `{ name, alias }`                      | Creates a category                       |
+| PUT    | `/api/categories/:id`           | `{ name, alias }`                      | Updates a category                       |
+| DELETE | `/api/categories/:id`           | —                                      | Deletes a category (+ bookmarks)         |
+| GET    | `/api/categories/:id/bookmarks` | —                                      | Bookmarks of one category                |
+| POST   | `/api/bookmarks`                | `{ category_id, url, title?, image? }` | Missing title/image scraped from the URL |
+| DELETE | `/api/bookmarks/:id`            | —                                      | Deletes a bookmark                       |
 
 > Reads and writes are open (no token required), matching the original demo
 > backend. Login validates credentials and hands out a JWT; enforcing it on the

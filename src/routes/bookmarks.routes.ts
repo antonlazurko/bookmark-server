@@ -15,13 +15,28 @@ interface BookmarkRow {
   created_at: Date
 }
 
-// POST /api/bookmarks — create a bookmark; title and image are scraped from the URL.
+// Optional text field from the body: undefined if missing or blank, null if not a string.
+const optionalString = (value: unknown) => {
+  if (value === undefined || value === null) return undefined
+  if (typeof value !== 'string') return null
+  return value.trim() || undefined
+}
+
+// POST /api/bookmarks — create a bookmark; title and image are scraped from the URL
+// unless they are passed in the body.
 bookmarksRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const { category_id, url } = req.body ?? {}
+    const customTitle = optionalString(req.body?.title)
+    const customImage = optionalString(req.body?.image)
 
-    if (!Number.isInteger(category_id) || typeof url !== 'string') {
+    if (
+      !Number.isInteger(category_id) ||
+      typeof url !== 'string' ||
+      customTitle === null ||
+      customImage === null
+    ) {
       res.status(400).json({ error: 'Invalid request body' })
       return
     }
@@ -32,7 +47,10 @@ bookmarksRouter.post(
       return
     }
 
-    const { title, image } = await fetchUrlMetadata(url)
+    // Only hit the page when something is still missing
+    const scraped = customTitle && customImage ? undefined : await fetchUrlMetadata(url)
+    const title = customTitle ?? scraped?.title ?? null
+    const image = customImage ?? scraped?.image ?? null
 
     const { rows } = await query<BookmarkRow>(
       `INSERT INTO bookmarks (category_id, url, title, image)
