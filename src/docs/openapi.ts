@@ -97,6 +97,17 @@ export const openApiSpec = {
         properties: {
           category_id: { type: 'integer', example: 1 },
           url: { type: 'string', format: 'uri', example: 'https://vuejs.org' },
+          title: {
+            type: 'string',
+            description: 'Optional; scraped from the page when omitted',
+            example: 'Vue.js',
+          },
+          image: {
+            type: 'string',
+            format: 'uri',
+            description: 'Optional image URL; scraped from og:image when omitted',
+            example: 'https://vuejs.org/images/logo.png',
+          },
         },
         required: ['category_id', 'url'],
       },
@@ -252,7 +263,7 @@ export const openApiSpec = {
         summary: 'Create a bookmark',
         operationId: 'createBookmark',
         security: [],
-        description: 'Title and image are scraped from the URL.',
+        description: 'Title and image are scraped from the URL unless passed in the body.',
         requestBody: {
           required: true,
           content: json({ $ref: '#/components/schemas/BookmarkInput' }),
